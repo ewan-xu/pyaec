@@ -68,7 +68,7 @@ class H:
 
 
 class PFDKF:
-    def __init__(self,N,M,A=0.999,P_initial=10e+5):
+    def __init__(self,N,M,A=0.999,P_initial=1e+2):
         self.N = N
         self.M = M
         self.N_freq = 1+M
@@ -97,11 +97,11 @@ class PFDKF:
         e_fft[self.M:] = e*self.window
         E = fft(e_fft)
         X2 = np.sum(np.abs(self.X)**2,axis=0)
-        Pe = 0.5*self.P*X2 + np.abs(E)**2/self.N
+        Pe = 0.5*self.P*X2 + np.abs(E)**2
         mu = self.P / (Pe + 1e-10)
-        self.P = self.A2*(1 - 0.5*mu*X2)*self.P + (1-self.A2)*np.sum(np.abs(self.H)**2,axis=0)
-        G = mu*E
-        self.H += self.X.conj()*G
+        self.P = self.A2*(1 - 0.5*mu*X2)*self.P + (1-self.A2)*np.abs(self.H)**2
+        G = mu*self.X.conj()
+        self.H += E*G
         h = ifft(self.H.partition())
         h[self.M:] = 0
         self.H.constrain(fft(h))
