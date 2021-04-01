@@ -3,7 +3,7 @@
 pyaec is a simple and efficient python implemention of a series of adaptive filters for acoustic echo cancellation.
 
 # About
-This project aims to use the simplest lines of python code to implement these adaptive filters, making it easier to learn the algorithm of adaptive filters.
+This project aims to use the simplest lines of python code to implement these adaptive filters, making it easier to learn these algorithms.
 
 # List of Implementioned Adaptive Filters
 ### Time Domain Adaptive Filters
