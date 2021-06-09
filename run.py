@@ -24,7 +24,7 @@ from adaptive_filter.pfdaf import pfdaf
 from adaptive_filter.fdaf import fdaf
 from adaptive_filter.fdkf import fdkf
 from adaptive_filter.pfdkf import pfdkf
-
+import soundfile as sf
 def main():
     x, sr  = librosa.load('samples/ref.wav',sr=None)
     h = [0.3,0.2,0.1,0.5,0.3]
@@ -32,35 +32,34 @@ def main():
 
     e = lms(x, d, N=10)
     e = np.clip(e,-1,1)
-    librosa.output.write_wav('samples/lms.wav',e,sr)
-
+    sf.write('samples/lms.wav', e, sr,  subtype='PCM_16')
+    
     e = nlms(x, d, N=10)
     e = np.clip(e,-1,1)
-    librosa.output.write_wav('samples/nlms.wav',e,sr)
+    sf.write('samples/nlms.wav', e, sr,  subtype='PCM_16')
 
     e = rls(x, d, N=10)
     e = np.clip(e,-1,1)
-    librosa.output.write_wav('samples/rls.wav',e,sr)
+    sf.write('samples/rls.wav', e, sr,  subtype='PCM_16')
 
     e = kalman(x, d, N=10)
     e = np.clip(e,-1,1)
-    librosa.output.write_wav('samples/kalman.wav',e,sr)
+    sf.write('samples/kalman.wav', e, sr,  subtype='PCM_16')
 
     e = pfdaf(x, d, N=4, M=64)
     e = np.clip(e,-1,1)
-    librosa.output.write_wav('samples/pfdaf.wav',e,sr)
+    sf.write('samples/pfdaf.wav', e, sr,  subtype='PCM_16')
 
     e = fdaf(x, d, M=64)
     e = np.clip(e,-1,1)
-    librosa.output.write_wav('samples/fdaf.wav',e,sr)
-    
+    sf.write('samples/fdaf.wav', e, sr,  subtype='PCM_16')
+
     e = fdkf(x, d, M=64)
     e = np.clip(e,-1,1)
-    librosa.output.write_wav('samples/fdkf.wav',e,sr)
+    sf.write('samples/fdkf.wav', e, sr,  subtype='PCM_16')
 
     e = pfdkf(x, d, N=4, M=64)
     e = np.clip(e,-1,1)
-    librosa.output.write_wav('samples/pfdkf.wav',e,sr)
-
+    sf.write('samples/pfdkf.wav', e, sr,  subtype='PCM_16')
 if __name__ == '__main__':
     main()
