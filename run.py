@@ -25,41 +25,43 @@ from adaptive_filter.fdaf import fdaf
 from adaptive_filter.fdkf import fdkf
 from adaptive_filter.pfdkf import pfdkf
 import soundfile as sf
+
 def main():
-    x, sr  = librosa.load('samples/ref.wav',sr=None)
-    h = [0.3,0.2,0.1,0.5,0.3]
-    d = np.convolve(x,h)
+  x, sr  = librosa.load('samples/ref.wav',sr=None)
+  h = [0.3,0.2,0.1,0.5,0.3]
+  d = np.convolve(x,h)
 
-    e = lms(x, d, N=10)
-    e = np.clip(e,-1,1)
-    sf.write('samples/lms.wav', e, sr,  subtype='PCM_16')
-    
-    e = nlms(x, d, N=10)
-    e = np.clip(e,-1,1)
-    sf.write('samples/nlms.wav', e, sr,  subtype='PCM_16')
+  e = lms(x, d, N=64,mu=0.1)
+  e = np.clip(e,-1,1)
+  sf.write('samples/lms.wav', e, sr, subtype='PCM_16')
 
-    e = rls(x, d, N=10)
-    e = np.clip(e,-1,1)
-    sf.write('samples/rls.wav', e, sr,  subtype='PCM_16')
+  e = nlms(x, d, N=64,mu=0.1)
+  e = np.clip(e,-1,1)
+  sf.write('samples/nlms.wav', e, sr, subtype='PCM_16')
 
-    e = kalman(x, d, N=10)
-    e = np.clip(e,-1,1)
-    sf.write('samples/kalman.wav', e, sr,  subtype='PCM_16')
+  e = rls(x, d, N=64)
+  e = np.clip(e,-1,1)
+  sf.write('samples/rls.wav', e, sr, subtype='PCM_16')
 
-    e = pfdaf(x, d, N=4, M=64)
-    e = np.clip(e,-1,1)
-    sf.write('samples/pfdaf.wav', e, sr,  subtype='PCM_16')
+  e = kalman(x, d, N=64)
+  e = np.clip(e,-1,1)
+  sf.write('samples/kalman.wav', e, sr, subtype='PCM_16')
 
-    e = fdaf(x, d, M=64)
-    e = np.clip(e,-1,1)
-    sf.write('samples/fdaf.wav', e, sr,  subtype='PCM_16')
+  e = fdaf(x, d, M=64, mu=0.1)
+  e = np.clip(e,-1,1)
+  sf.write('samples/fdaf.wav', e, sr, subtype='PCM_16')
 
-    e = fdkf(x, d, M=64)
-    e = np.clip(e,-1,1)
-    sf.write('samples/fdkf.wav', e, sr,  subtype='PCM_16')
+  e = fdkf(x, d, M=64)
+  e = np.clip(e,-1,1)
+  sf.write('samples/fdkf.wav', e, sr, subtype='PCM_16')
 
-    e = pfdkf(x, d, N=4, M=64)
-    e = np.clip(e,-1,1)
-    sf.write('samples/pfdkf.wav', e, sr,  subtype='PCM_16')
+  e = pfdaf(x, d, N=2, M=64,mu=0.1, partial_constrain=True)
+  e = np.clip(e,-1,1)
+  sf.write('samples/pfdaf.wav', e, sr, subtype='PCM_16')
+
+  e = pfdkf(x, d, N=8, M=64, partial_constrain=True)
+  e = np.clip(e,-1,1)
+  sf.write('samples/pfdkf.wav', e, sr, subtype='PCM_16')
+
 if __name__ == '__main__':
-    main()
+  main()

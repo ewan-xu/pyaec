@@ -17,24 +17,23 @@
 
 import numpy as np
 
-def kalman(x, d, N = 64, beta=0.9,sgm2u=1e-2,sgm2v=1e-6):
-    L = min(len(x),len(d))
-    Q = np.eye(N)*sgm2v
-    R = np.array([sgm2u]).reshape(1, 1)
-    H = np.zeros((N, 1))
-    P = np.eye(N)*sgm2v
-    I = np.eye(N)
+def kalman(x, d, N = 64, sgm2v=1e-4):
+  L = min(len(x),len(d))
+  Q = np.eye(N)*sgm2v
+  H = np.zeros((N, 1))
+  P = np.eye(N)*sgm2v
+  I = np.eye(N)
 
-    e = np.zeros(L-N)
-    for n in range(L-N):
-        x_n = np.array(x[n:n+N][::-1]).reshape(1, N)
-        d_n = d[n] 
-        y_n = np.dot(x_n, H)
-        e_n = d_n - y_n
-        R = beta*R + (1-beta)*(e_n**2)
-        Pn = P + Q
-        K = np.dot(Pn, x_n.T) / (np.dot(x_n, np.dot(Pn, x_n.T)) + R)
-        H = H + np.dot(K, e_n)
-        P = np.dot(I - np.dot(K, x_n), Pn)
-        e[n] = e_n
-    return e
+  e = np.zeros(L-N)
+  for n in range(L-N):
+    x_n = np.array(x[n:n+N][::-1]).reshape(1, N)
+    d_n = d[n] 
+    y_n = np.dot(x_n, H)
+    e_n = d_n - y_n
+    R = e_n**2+1e-10
+    Pn = P + Q
+    K = np.dot(Pn, x_n.T) / (np.dot(x_n, np.dot(Pn, x_n.T)) + R)
+    H = H + np.dot(K, e_n)
+    P = np.dot(I - np.dot(K, x_n), Pn)
+    e[n] = e_n
+  return e

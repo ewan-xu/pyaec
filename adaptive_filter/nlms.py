@@ -17,15 +17,15 @@
 
 import numpy as np
 
-def nlms(x, d, N = 4, mu = 0.05):
-    L = min(len(x),len(d))
-    h = np.zeros(N)
-    e = np.zeros(L-N)
-    for n in range(L-N):
-        x_n = x[n:n+N][::-1]
-        d_n = d[n] 
-        y_n = np.dot(h, x_n.T)
-        e_n = d_n - y_n
-        h = h + mu * e_n * x_n / (np.dot(x_n,x_n)+1e-5)
-        e[n] = e_n
-    return e
+def nlms(x, d, N = 4, mu = 0.1):
+  L = min(len(x),len(d))
+  h = np.zeros(N)
+  e = np.zeros(L-N)
+  for n in range(L-N):
+    x_n = x[n:n+N][::-1]
+    d_n = d[n] 
+    y_n = np.dot(h, x_n.T)
+    e_n = d_n - y_n
+    h = h + mu * e_n * x_n / (np.dot(x_n,x_n)+1e-5)
+    e[n] = e_n
+  return e
