@@ -67,7 +67,7 @@ class PFDAF:
 
 def pfdaf(x, d, N=4, M=64, mu=0.2, partial_constrain=True):
   ft = PFDAF(N, M, mu, partial_constrain)
-  num_block = len(x) // M
+  num_block = min(len(x),len(d)) // M
 
   e = np.zeros(num_block*M)
   for n in range(num_block):

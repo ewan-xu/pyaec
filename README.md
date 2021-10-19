@@ -9,7 +9,8 @@ This project aims to use the simplest lines of python code to implement these ad
 ### Time Domain Adaptive Filters
 - Least Mean Squares Filter (LMS)
 - Normalized Least Mean Squares Filter (NLMS)
-- recursive least squares filter (RLS)
+- Recursive Least Squares Filter (RLS)
+- Affine Projection Algorithm (APA)
 - Kalman Filter (KALMAN)
 
 ### Frequency Domain Adaptive Filters

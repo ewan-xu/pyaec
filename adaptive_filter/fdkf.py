@@ -28,7 +28,7 @@ def fdkf(x, d, M, beta=0.95, sgm2u=1e-2, sgm2v=1e-6):
   window =  np.hanning(M)
   x_old = np.zeros(M)
 
-  num_block = len(x) // M
+  num_block = min(len(x),len(d)) // M
   e = np.zeros(num_block*M)
 
   for n in range(num_block):

@@ -13,28 +13,25 @@
 # limitations under the License.
 # =============================================================================
 
-""" time domain kalman filter """
+""" affine projection algorithm """
 
 import numpy as np
 
-def kalman(x, d, N = 64, sgm2v=1e-4):
+def apa(x, d, N = 4, P = 4, mu = 0.1):
   L = min(len(x),len(d))
-  Q = np.eye(N)*sgm2v
-  H = np.zeros((N, 1))
-  P = np.eye(N)*sgm2v
-  I = np.eye(N)
-
+  A = np.zeros((N,P))
+  D = np.zeros(P)
+  h = np.zeros(N)
   e = np.zeros(L-N)
+  alpha = np.eye(P)*1e-2
   for n in range(L-N):
-    x_n = np.array(x[n:n+N][::-1]).reshape(1, N)
-    d_n = d[n] 
-    y_n = np.dot(x_n, H)
-    e_n = d_n - y_n
-    R = e_n**2+1e-10
-    Pn = P + Q
-    K = np.dot(Pn, x_n.T) / (np.dot(x_n, np.dot(Pn, x_n.T)) + R + 1e-10)
-    H = H + np.dot(K, e_n)
-    P = np.dot(I - np.dot(K, x_n), Pn)
-    e[n] = e_n
-
+    x_n = x[n:n+N][::-1]
+    A[:,1:] = A[:,:-1]
+    A[:,0] = x_n
+    D[1:] = D[:-1]
+    D[0] = d[n] 
+    e_n = D - np.dot(A.T, h)
+    delta = np.dot(np.linalg.inv(np.dot(A.T,A)+alpha),e_n)
+    h = h + mu * np.dot(A ,delta)
+    e[n] = e_n[0]
   return e

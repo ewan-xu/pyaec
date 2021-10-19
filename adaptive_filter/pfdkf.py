@@ -57,7 +57,7 @@ class PFDKF:
     e_fft[self.M:] = e*self.window
     E = fft(e_fft)
     X2 = np.sum(np.abs(self.X)**2,axis=0)
-    Pe = 0.5*self.P*X2 + np.abs(E)**2
+    Pe = 0.5*self.P*X2 + np.abs(E)**2/self.N
     mu = self.P / (Pe + 1e-10)
     self.P = self.A2*(1 - 0.5*mu*X2)*self.P + (1-self.A2)*np.abs(self.H)**2
     G = mu*self.X.conj()
@@ -74,9 +74,9 @@ class PFDKF:
             h[self.M:] = 0
             self.H[p] = fft(h)
 
-def pfdkf(x, d, N=4, M=64, A=0.999,P_initial=10e+5, partial_constrain=True):
+def pfdkf(x, d, N=4, M=64, A=0.999,P_initial=1e-2, partial_constrain=True):
   ft = PFDKF(N, M, A, P_initial, partial_constrain)
-  num_block = len(x) // M
+  num_block = min(len(x),len(d)) // M
 
   e = np.zeros(num_block*M)
   for n in range(num_block):

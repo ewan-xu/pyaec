@@ -26,7 +26,7 @@ def fdaf(x, d, M, mu=0.05, beta=0.9):
   window =  np.hanning(M)
   x_old = np.zeros(M)
 
-  num_block = len(x) // M
+  num_block = min(len(x),len(d)) // M
   e = np.zeros(num_block*M)
 
   for n in range(num_block):
