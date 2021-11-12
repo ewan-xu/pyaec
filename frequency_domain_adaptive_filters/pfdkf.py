@@ -18,7 +18,6 @@
 import numpy as np
 from numpy.fft import rfft as fft
 from numpy.fft import irfft as ifft
-from matplotlib import pyplot as plt
 
 class PFDKF:
   def __init__(self,N,M,A=0.999,P_initial=1e+2, partial_constrain=True):
@@ -81,7 +80,4 @@ def pfdkf(x, d, N=4, M=64, A=0.999,P_initial=1e+2, partial_constrain=True):
     e_n = ft.filt(x_n,d_n)
     ft.update(e_n)
     e[n*M:(n+1)*M] = e_n
-  print(np.argmax(np.sum(np.abs(ft.H)**2,axis=1)))
-  plt.plot(np.sum(np.abs(ft.H)**2,axis=1))
-  plt.show()
   return e
