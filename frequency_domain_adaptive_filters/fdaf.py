@@ -13,7 +13,7 @@
 # limitations under the License.
 # =============================================================================
 
-""" frequency domain adaptive filter """
+""" Frequency Domain Adaptive Filter """
 
 import numpy as np
 from numpy.fft import rfft as fft
@@ -34,7 +34,7 @@ def fdaf(x, d, M, mu=0.05, beta=0.9):
     d_n = d[n*M:(n+1)*M]
     x_old = x[n*M:(n+1)*M]
 
-    X_n = np.fft.rfft(x_n)
+    X_n = fft(x_n)
     y_n = ifft(H*X_n)[M:]
     e_n = d_n-y_n
     e[n*M:(n+1)*M] = e_n
@@ -43,7 +43,7 @@ def fdaf(x, d, M, mu=0.05, beta=0.9):
     E_n = fft(e_fft)
 
     norm = beta*norm + (1-beta)*np.abs(X_n)**2
-    G = mu*E_n/norm
+    G = mu*E_n/(norm+1e-3)
     H = H + X_n.conj()*G
 
     h = ifft(H)

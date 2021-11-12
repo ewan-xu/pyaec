@@ -13,28 +13,25 @@
 # limitations under the License.
 # =============================================================================
 
-""" time domain kalman filter """
+""" least mean squares filter """
 
 import numpy as np
+from scipy.linalg import hankel
 
-def kalman(x, d, N = 64, sgm2v=1e-4):
-  L = min(len(x),len(d))
-  Q = np.eye(N)*sgm2v
-  H = np.zeros((N, 1))
-  P = np.eye(N)*sgm2v
-  I = np.eye(N)
-
-  e = np.zeros(L-N)
-  for n in range(L-N):
-    x_n = np.array(x[n:n+N][::-1]).reshape(1, N)
-    d_n = d[n] 
-    y_n = np.dot(x_n, H)
-    e_n = d_n - y_n
-    R = e_n**2+1e-10
-    Pn = P + Q
-    K = np.dot(Pn, x_n.T) / (np.dot(x_n, np.dot(Pn, x_n.T)) + R + 1e-10)
-    H = H + np.dot(K, e_n)
-    P = np.dot(I - np.dot(K, x_n), Pn)
-    e[n] = e_n
-
+def bnlms(x, d, N = 4, L=4, mu = 0.1):
+  beta = 0.9
+  nIters = min(len(x),len(d))//L
+  u = np.zeros(L+N-1)
+  h = np.zeros(N)
+  e = np.zeros(nIters*L)
+  norm = np.full(L,1e-3)
+  for n in range(nIters):
+    u[:-L] = u[L:]
+    u[-L:] = x[n*L:(n+1)*L]
+    d_n = d[n*L:(n+1)*L]
+    A = hankel(u[:L],u[-N:])
+    e_n = d_n - np.dot(A,h)
+    norm = beta*norm + (1-beta)*(np.sum(A**2,axis=1))
+    h = h + mu*np.dot(A.T/(norm+1e-3),e_n)/L
+    e[n*L:(n+1)*L] = e_n
   return e

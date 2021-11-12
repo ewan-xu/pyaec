@@ -13,7 +13,7 @@
 # limitations under the License.
 # =============================================================================
 
-""" frequency domain kalman filter """
+""" Frequency Domain Kalman Filter """
 
 import numpy as np
 from numpy.fft import rfft as fft

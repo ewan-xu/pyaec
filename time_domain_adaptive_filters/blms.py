@@ -13,19 +13,22 @@
 # limitations under the License.
 # =============================================================================
 
-""" normalized least mean squares filter """
+""" Block Least Mean Squares Filter """
 
 import numpy as np
+from scipy.linalg import hankel
 
-def nlms(x, d, N = 4, mu = 0.1):
-  L = min(len(x),len(d))
-  h = np.zeros(N)
-  e = np.zeros(L-N)
-  for n in range(L-N):
-    x_n = x[n:n+N][::-1]
-    d_n = d[n] 
-    y_n = np.dot(h, x_n.T)
-    e_n = d_n - y_n
-    h = h + mu * e_n * x_n / (np.dot(x_n,x_n)+1e-5)
-    e[n] = e_n
+def blms(x, d, N=4, L=4, mu = 0.1):
+  nIters = min(len(x),len(d))//L
+  u = np.zeros(L+N-1)
+  w = np.zeros(N)
+  e = np.zeros(nIters*L)
+  for n in range(nIters):
+    u[:-L] = u[L:]
+    u[-L:] = x[n*L:(n+1)*L]
+    d_n = d[n*L:(n+1)*L]
+    A = hankel(u[:L],u[-N:])
+    e_n = d_n - np.dot(A,w)
+    w = w + mu*np.dot(A.T,e_n)/L
+    e[n*L:(n+1)*L] = e_n
   return e

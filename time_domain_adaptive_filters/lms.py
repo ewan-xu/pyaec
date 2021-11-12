@@ -13,25 +13,19 @@
 # limitations under the License.
 # =============================================================================
 
-""" affine projection algorithm """
+""" Least Mean Squares Filter """
 
 import numpy as np
 
-def apa(x, d, N = 4, P = 4, mu = 0.1):
-  L = min(len(x),len(d))
-  A = np.zeros((N,P))
-  D = np.zeros(P)
-  h = np.zeros(N)
-  e = np.zeros(L-N)
-  alpha = np.eye(P)*1e-2
-  for n in range(L-N):
-    x_n = x[n:n+N][::-1]
-    A[:,1:] = A[:,:-1]
-    A[:,0] = x_n
-    D[1:] = D[:-1]
-    D[0] = d[n] 
-    e_n = D - np.dot(A.T, h)
-    delta = np.dot(np.linalg.inv(np.dot(A.T,A)+alpha),e_n)
-    h = h + mu * np.dot(A ,delta)
-    e[n] = e_n[0]
+def lms(x, d, N = 4, mu = 0.1):
+  nIters = min(len(x),len(d)) - N
+  u = np.zeros(N)
+  w = np.zeros(N)
+  e = np.zeros(nIters)
+  for n in range(nIters):
+    u[1:] = u[:-1]
+    u[0] = x[n]
+    e_n = d[n] - np.dot(u, w)
+    w = w + mu * e_n * u
+    e[n] = e_n
   return e

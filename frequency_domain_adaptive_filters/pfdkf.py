@@ -13,46 +13,51 @@
 # limitations under the License.
 # =============================================================================
 
-""" partitioned-block-based frequency domain adaptive filter """
+""" Partitioned-Block-Based Frequency Domain Kalman Filter """
 
 import numpy as np
 from numpy.fft import rfft as fft
 from numpy.fft import irfft as ifft
+from matplotlib import pyplot as plt
 
-class PFDAF:
-  def __init__(self, N, M, mu, partial_constrain):
+class PFDKF:
+  def __init__(self,N,M,A=0.999,P_initial=1e+2, partial_constrain=True):
     self.N = N
     self.M = M
     self.N_freq = 1+M
     self.N_fft = 2*M
-    self.mu = mu
+    self.A2 = A**2
     self.partial_constrain = partial_constrain
     self.p = 0
-    self.x_old = np.zeros(self.M,dtype=np.float32)
+
+    self.x = np.zeros(shape=(2*self.M),dtype=np.float32)
+    self.P = np.full((self.N,self.N_freq),P_initial)
     self.X = np.zeros((N,self.N_freq),dtype=np.complex)
-    self.H = np.zeros((self.N,self.N_freq),dtype=np.complex)
     self.window = np.hanning(self.M)
+    self.H = np.zeros((self.N,self.N_freq),dtype=np.complex)
 
   def filt(self, x, d):
     assert(len(x) == self.M)
-    x_now = np.concatenate([self.x_old,x])
-    X = fft(x_now)
+    self.x[self.M:] = x
+    X = fft(self.x)
     self.X[1:] = self.X[:-1]
     self.X[0] = X
-    self.x_old = x
+    self.x[:self.M] = self.x[self.M:]
     Y = np.sum(self.H*self.X,axis=0)
     y = ifft(Y)[self.M:]
     e = d-y
     return e
 
-  def update(self,e):
-    X2 = np.sum(np.abs(self.X)**2,axis=0)
+  def update(self, e):
     e_fft = np.zeros(shape=(self.N_fft,),dtype=np.float32)
     e_fft[self.M:] = e*self.window
     E = fft(e_fft)
-    
-    G = self.mu*E/(X2+1e-10)
-    self.H += self.X.conj()*G
+    X2 = np.sum(np.abs(self.X)**2,axis=0)
+    Pe = 0.5*self.P*X2 + np.abs(E)**2/self.N
+    mu = self.P / (Pe + 1e-10)
+    self.P = self.A2*(1 - 0.5*mu*X2)*self.P + (1-self.A2)*np.abs(self.H)**2
+    G = mu*self.X.conj()
+    self.H += E*G
 
     if self.partial_constrain:
         h = ifft(self.H[self.p])
@@ -65,8 +70,8 @@ class PFDAF:
             h[self.M:] = 0
             self.H[p] = fft(h)
 
-def pfdaf(x, d, N=4, M=64, mu=0.2, partial_constrain=True):
-  ft = PFDAF(N, M, mu, partial_constrain)
+def pfdkf(x, d, N=4, M=64, A=0.999,P_initial=1e+2, partial_constrain=True):
+  ft = PFDKF(N, M, A, P_initial, partial_constrain)
   num_block = min(len(x),len(d)) // M
 
   e = np.zeros(num_block*M)
@@ -76,5 +81,7 @@ def pfdaf(x, d, N=4, M=64, mu=0.2, partial_constrain=True):
     e_n = ft.filt(x_n,d_n)
     ft.update(e_n)
     e[n*M:(n+1)*M] = e_n
-    
+  print(np.argmax(np.sum(np.abs(ft.H)**2,axis=1)))
+  plt.plot(np.sum(np.abs(ft.H)**2,axis=1))
+  plt.show()
   return e
