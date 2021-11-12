@@ -31,6 +31,7 @@ This project aims to use the simplest lines of python code to implement these ad
 # Requirements
 - Python 3.6+
 - librosa
+- pyroomacoustics
 
 # Usage
 ```
