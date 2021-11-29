@@ -55,15 +55,15 @@ class PFDAF:
     self.H += self.X.conj()*G
 
     if self.partial_constrain:
-        h = ifft(self.H[self.p])
-        h[self.M:] = 0
-        self.H[self.p] = fft(h)
-        self.p = (self.p + 1) % self.N
+      h = ifft(self.H[self.p])
+      h[self.M:] = 0
+      self.H[self.p] = fft(h)
+      self.p = (self.p + 1) % self.N
     else:
-        for p in range(self.N):
-            h = ifft(self.H[p])
-            h[self.M:] = 0
-            self.H[p] = fft(h)
+      for p in range(self.N):
+        h = ifft(self.H[p])
+        h[self.M:] = 0
+        self.H[p] = fft(h)
 
 def pfdaf(x, d, N=4, M=64, mu=0.2, partial_constrain=True):
   ft = PFDAF(N, M, mu, partial_constrain)
