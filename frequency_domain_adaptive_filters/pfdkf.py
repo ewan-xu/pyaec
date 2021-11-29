@@ -59,15 +59,15 @@ class PFDKF:
     self.H += E*G
 
     if self.partial_constrain:
-        h = ifft(self.H[self.p])
-        h[self.M:] = 0
-        self.H[self.p] = fft(h)
-        self.p = (self.p + 1) % self.N
+      h = ifft(self.H[self.p])
+      h[self.M:] = 0
+      self.H[self.p] = fft(h)
+      self.p = (self.p + 1) % self.N
     else:
-        for p in range(self.N):
-            h = ifft(self.H[p])
-            h[self.M:] = 0
-            self.H[p] = fft(h)
+      for p in range(self.N):
+        h = ifft(self.H[p])
+        h[self.M:] = 0
+        self.H[p] = fft(h)
 
 def pfdkf(x, d, N=4, M=64, A=0.999,P_initial=1e+2, partial_constrain=True):
   ft = PFDKF(N, M, A, P_initial, partial_constrain)
